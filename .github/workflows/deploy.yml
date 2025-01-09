@@ -31,7 +31,9 @@ jobs:
       - name: Set up SSH key
         run: |
           echo "$EC2_PRIVATE_KEY" > private_key.pem
+          ls -l private_key.pem
           chmod 600 private_key.pem
+          ls -l private_key.pem
 
       # 5. 빌드된 JAR 파일 전송
       - name: Deploy JAR to EC2
