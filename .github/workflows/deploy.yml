@@ -23,7 +23,9 @@ jobs:
 
       # 3. Maven 또는 Gradle로 빌드
       - name: Build with Maven
-        run: mvn clean package -DskipTests
+        run: |
+          cd /KKabi_Backend
+          mvn clean package -DskipTests
 
       # 4. SSH 키 생성
       - name: Set up SSH key
