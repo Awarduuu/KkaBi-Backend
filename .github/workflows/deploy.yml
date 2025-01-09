@@ -36,6 +36,10 @@ jobs:
           chmod 600 private_key.pem
           ls -l private_key.pem
 
+      - name: Debug target directory
+        run: |
+          ls -l target/
+
       # 5. 빌드된 JAR 파일 전송
       - name: Deploy JAR to EC2
         env:
