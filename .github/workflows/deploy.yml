@@ -34,22 +34,29 @@ jobs:
         run: |
           echo "$EC2_PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
+          
+      # 5. jar 파일 압축
+      - name: Compress JAR
+        run: |
+          tar -czf Kkabi_Backend.tar.gz -C Kkabi_Backend/target *.jar
 
-      # 5. 빌드된 JAR 파일 전송
-      - name: Deploy JAR to EC2
+      # 6. 압축 파일 EC2로 전송
+      - name: Deploy compressed file to EC2
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USER: ${{ secrets.EC2_USER }}
         run: |
-          scp -i private_key.pem -o StrictHostKeyChecking=no Kkabi_Backend/target/*.jar ubuntu@${EC2_HOST}:/home/ubuntu/app/
-
-      # 6. EC2에서 애플리케이션 실행
-      - name: Start Spring Boot Application
+          scp -i private_key.pem -o StrictHostKeyChecking=no Kkabi_Backend.tar.gz ubuntu@${EC2_HOST}:/home/ubuntu/
+      
+      # 7. jar 파일 실행
+      - name: Extract and Run JAR on EC2
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USER: ${{ secrets.EC2_USER }}
         run: |
           ssh -i private_key.pem -o StrictHostKeyChecking=no ubuntu@${EC2_HOST} << EOF
+            tar -xzf /home/ubuntu/Kkabi_Backend.tar.gz -C /home/ubuntu/app/
             pkill -f 'java -jar' || true
-            nohup java -jar /home/ubuntu/app/*.jar > /home/ubuntu/app/app.log 2>&1 &
+            nohup java -jar /home/ubuntu/app/*.jar > app.log 2>&1 &
           EOF
+
