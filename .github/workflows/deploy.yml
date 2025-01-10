@@ -38,9 +38,9 @@ jobs:
       # 5. jar 파일 압축
       - name: Compress JAR
         run: |
-          cd Kkabi_Backend/target
-          ls
-          tar -czf Kkabi_Backend.tar.gz -C Kkabi_Backend/target *.jar
+          ls -l Kkabi_Backend/target
+          chmod 500 Kkabi_Backend/target/*.jar
+          tar -czf Kkabi_Backend.tar.gz Kkabi_Backend/target/*.jar
 
       # 6. 압축 파일 EC2로 전송
       - name: Deploy compressed file to EC2
