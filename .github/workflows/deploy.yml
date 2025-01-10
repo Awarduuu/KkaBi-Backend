@@ -38,9 +38,16 @@ jobs:
       # 5. jar 파일 압축
       - name: Compress JAR
         run: |
-          ls -l Kkabi_Backend/target
           chmod 500 Kkabi_Backend/target/*.jar
           tar -czf Kkabi_Backend.tar.gz Kkabi_Backend/target/*.jar
+          
+      # 6. S3에 JAR 업로드
+      - name: Upload JAR to S3
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws s3 cp Kkabi_Backend.tar.gz s3://kkabi-bucket/
 
       # 6. 압축 파일 EC2로 전송
       - name: Deploy compressed file to EC2
@@ -48,7 +55,7 @@ jobs:
           EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USER: ${{ secrets.EC2_USER }}
         run: |
-          scp -i private_key.pem -o StrictHostKeyChecking=no Kkabi_Backend.tar.gz ubuntu@${EC2_HOST}:/home/ubuntu/
+          scp -i private_key.pem -o StrictHostKeyChecking=no Kkabi_Backend.tar.gz {EC2_USER}@${EC2_HOST}:/home/{EC2_USER}/
       
       # 7. jar 파일 실행
       - name: Extract and Run JAR on EC2
@@ -56,9 +63,10 @@ jobs:
           EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USER: ${{ secrets.EC2_USER }}
         run: |
-          ssh -i private_key.pem -o StrictHostKeyChecking=no ubuntu@${EC2_HOST} << EOF
-            tar -xzf /home/ubuntu/Kkabi_Backend.tar.gz -C /home/ubuntu/app/
+          ssh -i private_key.pem -o StrictHostKeyChecking=no {EC2_USER}@${EC2_HOST} << EOF
+            aws s3 cp s3://kkabi-bucket/Kkabi_Backend.tar.gz /home/{EC2_USER}/app/
+            tar -xzf /home/{EC2_USER}/Kkabi_Backend.tar.gz -C /home/{EC2_USER}/app/
             pkill -f 'java -jar' || true
-            nohup java -jar /home/ubuntu/app/*.jar > app.log 2>&1 &
+            nohup java -jar /home/{EC2_USER}/app/*.jar > app.log 2>&1 &
           EOF
 
