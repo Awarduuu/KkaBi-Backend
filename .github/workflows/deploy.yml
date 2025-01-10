@@ -49,14 +49,6 @@ jobs:
         run: |
           aws s3 cp Kkabi_Backend.tar.gz s3://kkabi-bucket/
 
-      # 6. 압축 파일 EC2로 전송
-      - name: Deploy compressed file to EC2
-        env:
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_USER: ${{ secrets.EC2_USER }}
-        run: |
-          scp -i private_key.pem -o StrictHostKeyChecking=no Kkabi_Backend.tar.gz ${EC2_USER}@${EC2_HOST}:/home/${EC2_USER}/
-      
       # 7. jar 파일 실행
       - name: Extract and Run JAR on EC2
         env:
