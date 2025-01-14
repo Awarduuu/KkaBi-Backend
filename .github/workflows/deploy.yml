@@ -9,7 +9,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/kkabi_backend 
+      IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/kkabi-backend 
 
     steps:
       # 1. 저장소 체크아웃
@@ -19,8 +19,7 @@ jobs:
       # 2. Maven 빌드
       - name: Build Spring Boot Application
         run: |
-          cd ./Kkabi_Backend
-          ./mvnw clean package -DskipTests
+          mvn clean package -DskipTests
 
       # 3. Docker 로그인
       - name: Log in to DockerHub
@@ -32,7 +31,7 @@ jobs:
       # 4. Docker 이미지 빌드 및 푸시
       - name: Build and push Docker image
         run: |
-          docker build -t $IMAGE_NAME:latest ./Kkabi_Backend
+          docker build -t $IMAGE_NAME:latest .
           docker push $IMAGE_NAME:latest
 
       # 5. EC2에 배포
