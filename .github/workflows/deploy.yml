@@ -9,7 +9,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/Kkabi_Backend
+      IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/kkabi_backend
 
     steps:
       # 1. 저장소 체크아웃
