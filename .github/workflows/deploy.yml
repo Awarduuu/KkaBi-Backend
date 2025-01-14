@@ -8,8 +8,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    env:
-      IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/kkabi-backend 
 
     steps:
       # 1. 저장소 체크아웃
@@ -31,6 +29,7 @@ jobs:
       # 4. Docker 이미지 빌드 및 푸시
       - name: Build and push Docker image
         run: |
+          IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/kkabi-backend
           docker build -t $IMAGE_NAME:latest .
           docker push $IMAGE_NAME:latest
 
@@ -42,6 +41,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script: |
+            IMAGE_NAME=${{ secrets.DOCKER_USERNAME }}/kkabi-backend
             docker pull $IMAGE_NAME:latest
             docker stop app || true
             docker rm app || true
