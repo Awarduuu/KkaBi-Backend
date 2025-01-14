@@ -8,50 +8,36 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/your-app
 
     steps:
-      # 1. 코드를 체크아웃
+      # 1. 저장소 체크아웃
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2. Java와 빌드 도구 설정
-      - name: Set up JDK
-        uses: actions/setup-java@v3
+      # 3. Docker 로그인
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
         with:
-          java-version: '11' # 사용 중인 JDK 버전에 맞게 설정
-          distribution: 'temurin'
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # 3. Maven 또는 Gradle로 빌드
-      - name: Build with Maven
+      # 4. Docker 이미지 빌드 및 푸시
+      - name: Build and push Docker image
         run: |
-          cd Kkabi_Backend
-          mvn clean package -DskipTests
+          docker build -t $IMAGE_NAME:latest .
+          docker push $IMAGE_NAME:latest
 
-      # 4. SSH 키 생성
-      - name: Set up SSH key
-        env:
-          EC2_PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
-        run: |
-          echo "$EC2_PRIVATE_KEY" > private_key.pem
-          chmod 600 private_key.pem
-          
-      # 6. S3에 JAR 업로드
-      - name: Upload JAR to S3
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: |
-          aws s3 cp Kkabi_Backend/target/*.jar s3://kkabi-bucket/
-
-      # 7. jar 파일 실행
-      - name: Extract and Run JAR on EC2
-        env:
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_USER: ${{ secrets.EC2_USER }}
-        run: |
-          ssh -i private_key.pem -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << EOF
-            aws s3 cp s3://kkabi-bucket/*.jar /home/${EC2_USER}/app/
-            pkill -f 'java -jar' || true
-            nohup java -jar /home/${EC2_USER}/app/*.jar > app.log 2>&1 &
-          EOF
-
+      # 5. EC2에 배포
+      - name: SSH to EC2 and deploy
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: |
+            docker pull $IMAGE_NAME:latest
+            docker stop app || true
+            docker rm app || true
+            docker run -d --name app -p 9000:9000 $IMAGE_NAME:latest
