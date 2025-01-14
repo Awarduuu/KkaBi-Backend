@@ -16,6 +16,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # 2. Maven 빌드
+      - name: Build Spring Boot Application
+        run: |
+          cd ./Kkabi_Backend
+          ./mvnw clean package -DskipTests
+
       # 3. Docker 로그인
       - name: Log in to DockerHub
         uses: docker/login-action@v2
