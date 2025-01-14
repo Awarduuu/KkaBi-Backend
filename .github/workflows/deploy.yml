@@ -9,7 +9,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/kkabi_backend
+      IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/kkabi_backend 
 
     steps:
       # 1. 저장소 체크아웃
@@ -26,7 +26,7 @@ jobs:
       # 4. Docker 이미지 빌드 및 푸시
       - name: Build and push Docker image
         run: |
-          docker build -t $IMAGE_NAME:latest .
+          docker build -t $IMAGE_NAME:latest ./Kkabi_Backend
           docker push $IMAGE_NAME:latest
 
       # 5. EC2에 배포
