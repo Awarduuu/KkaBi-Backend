@@ -1,37 +1,41 @@
+# 빌드 결과물
+/target/
+*.jar
+*.war
+
+# IDE 설정 파일
+/.idea/
+/*.iml
+/.project
+/.classpath
+/.settings/
+/.vscode/
+
+# OS 및 편집기 관련
 .DS_Store
-application.properties
-KkabiBackendApplicationTests.java
+Thumbs.db
+*.swp
+*.swo
+*~
 
-HELP.md
-target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+# 환경 파일
+/application.properties
+/application.yml
+*.env
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+# Docker 관련
+/.dockerignore
+/docker-compose.override.yml
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
+# 로그 파일
+/logs/
+*.log
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+# 패키지 매니저 캐시
+/.mvn/
+.mvn/wrapper/maven-wrapper.jar
 
-### VS Code ###
-.vscode/
+# 테스트 및 배포 파일
+/test-output/
+*.out
+*.tmp
